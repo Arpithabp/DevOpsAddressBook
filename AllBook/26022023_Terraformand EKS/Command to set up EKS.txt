@@ -1,0 +1,149 @@
+
+1. Preparation steps:--
+	1. Create AWS account
+	2. Create a VPC
+	3. Create an IAM role with Security Group(basically we are creating AWS user with permissions to access EKS cluster)
+
+2. Create Cluster Control Plane --- Master Nodes(eksctl)
+	We need to create the control plane with User created with above role. 
+	We can choose basic information :--		
+	-- cluster name and k8s version
+	--  region and VPC for our cluster
+	-- set security for our cluster
+
+3. Create Worker Nodes and connect to cluster
+	
+Install eksctl
+https://docs.aws.amazon.com/eks/latest/userguide/eksctl.html
+
+Command to be executed from console to create cluster
+eksctl create cluster --name myfirstcluster --version 1.24 --region ap-south-1 --nodegroup-name my-nodes --node-type t2.micro --nodes 2
+
+To delete cluster
+eksctl delete cluster --name <my-cluster> --region <region-code>
+
+
+
+Image already pushed ECR
+AWS EKS cluster is ready
+We have to deploye ECR image to EKS cluster
+
+Verify the permissions
+Go to EC2 instances --> click on the nodes--> IAM role --> check two permissions --> 
+AmazonEC2ContainerRegistryReadOnly, AmazonEC2ContainerRegistryPowerUser  should be associated
+
+******************************************************************************************************************************************
+eksctl delete cluster --name myfirstcluster --region ap-south-1
+
+
+eksctl create cluster --name myfcluster --version 1.25 --region ap-south-1 --nodegroup-name my-node --node-type t2.micro --nodes 2
+
+aws eks update-kubeconfig --region ap-south-1 --name myfcluster
+
+kubectl get svc
+
+If getting error then two things :--
+error: exec plugin: invalid apiVersion "client.authentication.k8s.io/v1alpha1"
+
+Step 1:
+Upgrade AWS CLI 
+sudo apt install python3-pip
+pip install --upgrade awscli
+
+Step 2: 
+In config file replace alpha1 with beta1
+
+kubectl get svc
+
+mkdir eks-sample-app
+cd eks-sample-app
+touch eks-sample-deployment.yaml
+vi eks-sample-deployment.yaml
+
+Copy and paste
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eks-sample-linux-deployment
+  namespace: eks-sample-app
+  labels:
+    app: eks-sample-linux-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: eks-sample-linux-app
+  template:
+    metadata:
+      labels:
+        app: eks-sample-linux-app
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/arch
+                operator: In
+                values:
+                - amd64
+                - arm64
+      containers:
+      - name: nginx
+        image: public.ecr.aws/nginx/nginx:1.21
+        ports:
+        - name: http
+          containerPort: 80
+        imagePullPolicy: IfNotPresent
+      nodeSelector:
+        kubernetes.io/os: linux
+
+
+
+
+save above file
+
+******************************************************************************************************************************************
+Run below command
+kubectl create namespace eks-sample-app
+
+kubectl apply -f eks-sample-deployment.yaml
+
+
+Create a service
+touch eks-sample-service.yaml
+vi eks-sample-service.yaml
+
+copy and paste below code ::
+apiVersion: v1
+kind: Service
+metadata:
+  name: eks-sample-linux-service
+  namespace: eks-sample-app
+  labels:
+    app: eks-sample-linux-app
+spec:
+  selector:
+    app: eks-sample-linux-app
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+
+
+
+save it
+
+******************************************************************************************************************************************
+Run below command
+kubectl apply -f eks-sample-service.yaml
+
+verify the same in AWS console and service
+
+View all resources that exist in the eks-sample-app namespace
+kubectl get all -n eks-sample-app
+
+*****************************************************************************************************************************************
+eks-sample-linux-deployment-5765f44848-gsjdv --- Name of the POD , make sure replace it your own pod name
+kubectl exec -it eks-sample-linux-deployment-5765f44848-gsjdv -n eks-sample-app -- /bin/bash

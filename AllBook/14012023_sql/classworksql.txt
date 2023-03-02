@@ -1,0 +1,25 @@
+create database stardb;
+//create database stardb;
+\l
+//Connect to db
+\c stardb;
+
+\dt;
+
+create table department(deptid serial primary key,deptname varchar(50));
+
+\dt;
+\d department;
+
+select * from department;
+
+select * from department_deptid_seq;
+
+
+create table employee(empid serial primary key,empname varchar(40),dateofbirth date,salary double precision,deptid int references department(deptid));
+insert into department(deptname) values('IT');
+insert into department(deptname) values('Marketing');
+insert into department(deptname) values('Finance');
+
+insert into employee(empname,dateofbirth,salary,deptid) values ('Narendra','18-02-1955',1111556.50,3);
+insert into employee(empname,dateofbirth,salary,deptid) values ('Sreenivasa','28-05-1977',21556.50,2);

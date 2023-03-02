@@ -1,0 +1,43 @@
+Docker Compose is a tool that was developed to help define and share multi-container applications. 
+With Compose, we can create a YAML file to define the services and with a single command, 
+can spin everything up or tear it all down.
+
+
+docker-compose installation
+Check the version 
+sudo docker compose version
+mkdir composetest
+cd composetest
+#create app.py using vi app.py
+#create Dockerfile using vi Dockerfile
+#create requirements.txt vi command
+#create docker-compose.yml using vi command
+#Refer below link for the above files content
+#https://docs.docker.com/compose/gettingstarted/
+#Start the service using below command
+sudo docker compose up
+#Stop the service using below command
+sudo docker compose down
+********************************************************************************
+Kubelet --- node agent running on node
+kube-proxy --- network proxy that runs on each node in your cluster
+kube api server ---The API server is the front end for the Kubernetes control plane.
+etcd ----Consistent and highly-available key value store used as Kubernetes' backing store for all cluster data.
+         If your Kubernetes cluster uses etcd as its backing store, make sure you have a back up plan for those data.
+
+kube-scheduler ---Control plane component that watches for newly created Pods with no assigned node, 
+                   and selects a node for them to run on.
+
+kube-controller-manager ---  Control plane component that runs controller processes.
+
+
+https://kuberty.io/blog/minikube-vs-kubectl/
+minikube: a ONE Node cluster, where the master and worker processes are on the same machine. 
+Kubectl, the command line tool for Kubernetes, then enables the interaction with the cluster: to create pods, services and other components.
+By default, kubectl gets configured to access the kubernetes cluster control plane inside minikube when the minikube start command is executed.
+
+
+NGINX is open source software for web serving, reverse proxying, caching, load balancing, media streaming, and more. 
+
+Installation of Kubernetes Cluster :
+https://devopscube.com/setup-kubernetes-cluster-kubeadm/
